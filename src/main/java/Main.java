@@ -15,13 +15,23 @@ import java.util.Locale;
 import java.util.Random;
 
 public class Main {
+    private static Database database = new Database();
+    public static ArrayList<String> copyBase() throws SQLException {
+        ArrayList<String> temp = new ArrayList<>();
+        var stmt = database.connect().createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT * FROM \"Question\"");
+        while (rs.next()) {
+            temp.add(rs.getString("question"));
+        }
+        database.closeConnection();
+        return temp;
+    }
 
     public static void main(String[] args) throws ClientException, ApiException, InterruptedException {
         TransportClient transportClient = new HttpTransportClient();
         VkApiClient vk = new VkApiClient(transportClient);
         Random random = new Random();
         Keyboard keyboard = new Keyboard();
-        Database database = new Database();
         List<List<KeyboardButton>> allKey = new ArrayList<>();
         List<KeyboardButton> lineOne = new ArrayList<>();
         GroupActor actor = new GroupActor(213932615, "727a21e5aff72e263de80f9dfc135f24858365045809a8336b2ba4af19fd8d7c5bb13aafb4e20d725bccd");
@@ -35,7 +45,7 @@ public class Main {
                 messages.forEach(message -> {
                     System.out.println(message.toString());
                     try {
-                        if (!message.getText().isEmpty()) {
+                        if (!copyBase().contains(message.getText())) {
                             try {
                                 allKey.clear();
                                 lineOne.clear();
@@ -43,15 +53,18 @@ public class Main {
                                 ResultSet rs = stmt.executeQuery("SELECT * FROM \"Question\"");
                                 while (rs.next()) {
                                     if (rs.getString("question").toLowerCase(Locale.ROOT).contains(message.getText().toLowerCase(Locale.ROOT))) {
-                                        lineOne.add(new KeyboardButton()
+                                        List<KeyboardButton> lineOne2 = new ArrayList<>();
+                                        lineOne2.add(new KeyboardButton()
                                                 .setAction(new KeyboardButtonAction()
                                                         .setLabel(rs.getString("question"))
                                                         .setType(TemplateActionTypeNames.TEXT))
                                                 .setColor(KeyboardButtonColor.POSITIVE));
+
+                                        allKey.add(lineOne2);
                                     }
                                 }
-                                if(!lineOne.isEmpty()){
-                                    allKey.add(lineOne);
+                                if(!allKey.isEmpty()){
+                                    keyboard.setOneTime(false);
                                     keyboard.setButtons(allKey);
                                 }
                                 else {
@@ -59,23 +72,28 @@ public class Main {
                                             .send(actor)
                                             .message("Не удалось найти")
                                             .userId(message.getFromId())
+                                            .randomId(random.nextInt(10000))
+                                            .execute();
+                                }
+                                try {
+                                    vk.messages()
+                                            .send(actor)
+                                            .message("Что удалось найти")
+                                            .userId(message.getFromId())
                                             .keyboard(keyboard)
                                             .randomId(random.nextInt(10000))
                                             .execute();
                                 }
-                                vk.messages()
-                                        .send(actor)
-                                        .message("Что удалось найти")
-                                        .userId(message.getFromId())
-                                        .keyboard(keyboard)
-                                        .randomId(random.nextInt(10000))
-                                        .execute();
+                                catch (Exception ex){
+                                    System.out.println(ex.getMessage());
+                                }
+
                                 database.closeConnection();
                             } catch (Exception ex) {
                                 System.out.println(ex.getMessage());
                             }
                         }
-                        if (!message.getText().isEmpty()) {
+                        if (copyBase().contains(message.getText())) {
                             var stmt = database.connect().createStatement();
                             ResultSet rs = stmt.executeQuery("SELECT * FROM \"Question\"");
                             while (rs.next()) {
