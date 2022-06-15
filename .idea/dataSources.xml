@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="MentorMaximDB@localhost" uuid="3b106198-68d0-4eb9-901c-c411b6dfc67f">
+    <data-source source="LOCAL" name="d8k9ke2c61h3hb@ec2-3-228-235-79.compute-1.amazonaws.com" uuid="4e4fecee-bdf5-4956-bab0-cef701532d66">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/MentorMaximDB</jdbc-url>
+      <jdbc-url>jdbc:postgresql://ec2-3-228-235-79.compute-1.amazonaws.com:5432/d8k9ke2c61h3hb</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
